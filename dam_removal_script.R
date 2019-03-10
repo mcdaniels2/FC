@@ -161,6 +161,7 @@ ddata %>%
 ddata$Dam_Height_m <- as.numeric(ddata$Dam_Height_m)
 mean(ddata$Dam_Height_m, na.rm = TRUE)
 # mean is 15.46m
+summary(ddata$Dam_Height_m)
 
 # histogram of heigh in meters
 hist(ddata$Dam_Height_m)
