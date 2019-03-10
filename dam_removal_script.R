@@ -8,7 +8,8 @@ http://figshare.com/articles/_/5234068
 ddata <- read.csv(file.choose())
 
 View(ddata)
-
+# add ddata to GitHub project directory
+write.csv(ddata, file = "ddata.csv")
 
 damrem <- ddply(ddata, c("Year_Removed"), summarise, 
                 count = length(Year_Removed))
@@ -24,11 +25,6 @@ damrem$Year_Removed <- as.character(damrem$Year_Removed)
 damrem$Year_Removed <- as.numeric(damrem$Year_Removed)
 
 # now to plot
-
-
-
-
-
 #plotting first question as bar graph
 plotdamsovertime <- ggplot(damrem, aes(Year_Removed, count)) +
   geom_bar(stat = "identity") + theme_classic(base_size = 16) +
