@@ -1,19 +1,18 @@
-# March 4-12, 2019
+# March 4-14, 2019
 # Molly Daniels
 # Exploratory Analysis of the Dam Removal Dataset
 
+##### intro #####
 # Data Source:
-http://figshare.com/articles/_/5234068 
+# http://figshare.com/articles/_/5234068 
 
 ddata <- read.csv(file.choose())
-
 View(ddata)
 # add ddata to GitHub project directory
-write.csv(ddata, file = "ddata.csv")
+# write.csv(ddata, file = "ddata.csv")
 
 damrem <- ddply(ddata, c("Year_Removed"), summarise, 
                 count = length(Year_Removed))
-
 damrem
 head(damrem, n=10)
 damrem <- damrem[-1,]
@@ -119,11 +118,11 @@ ddata %>%
   mutate(Dam_Height_m = conv_unit(Dam_Height_ft, "ft", "m")) -> ddata
 ddata$Dam_Height_m <- as.numeric(ddata$Dam_Height_m)
 
+# and summary stats
 mean(ddata$Dam_Height_m, na.rm = TRUE) # 4.4234
 min(ddata$Dam_Height_m, na.rm = TRUE)
 max(ddata$Dam_Height_m, na.rm = TRUE)
 median(ddata$Dam_Height_m, na.rm = TRUE)
-
 
 #create histogram:
 plotdamheight <- ggplot(ddata, aes(Dam_Height_m)) +
@@ -135,6 +134,53 @@ plotdamheight + theme(legend.position="none")
 
 ###
 
+##### Top ten original uses #####
+# create new dataframe that is a summary of ddata
+ddata %>%
+  group_by(Original.Use) %>%
+  tally() -> ddata.s 
+View(ddata.s)
+
+# sort new dataframe in descending order, remove NAs
+ddata.s <- arrange(ddata.s, desc(n))
+ddata.s <- ddata.s[-1,]
+head(ddata.s, 10)
+
+# creating tibble, exporting the tibble
+ddata.s.t <- head(ddata.s, 10)
+write.csv(ddata.s.t, "toptenoriginaluses.csv")
+
+###
+
+##### bonus: map of US dam removals #####
+# map setup
+usa <- map_data("usa")
+w2hr <- map_data("world2Hires")
+head(usa, 2)
+
+# plotting with ggplot
+plotusmap <- ggplot() + 
+  geom_polygon(data = usa, aes(x= long, y = lat, group = group)) + 
+  coord_fixed(1.3) + 
+  geom_point(data = ddata, (aes(x = ddata$Longitude, y = ddata$Latitude, colour = State)), 
+             size = .25) +
+  xlim(-130,-65) + ylim(22,50) + theme(legend.position="none")
+plotusmap
+
+# trying again but with states colored and dams removed per state labelled
+plotstatemap2 <- ggplot(data = states) + 
+  geom_polygon(aes(x = long, y = lat, fill = region, group = group), 
+               color = "white", size = .25) + 
+  coord_fixed(1.3) +
+  guides(fill=FALSE) +
+  geom_text(aes(label = state_counts$n, x = states$long, y = states$lat)) +
+  xlim(-130,-65) + ylim(22,50)
+plotstatemap2
+# I couldn't get this to work. R says "Aesthetics must be either length 1 or the same 
+# as the data (15537): x, y, label"
+
+###
+
 ##### saving plots #####
 # Save plots
 #ggsave("time.trends.pdf", plot = plotdamsovertime2, width = 8, height = 5, units = c("in"))
@@ -143,4 +189,4 @@ plotdamheight + theme(legend.position="none")
 
 #ggsave("built.hist3.pdf", plot = plotdamsbuilt3, width = 7, height = 5, units = c("in"))
 
-
+#ggsave("height.hist3.pdf", plot = plotdamheight, width = 7, height = 5, units = c("in"))
